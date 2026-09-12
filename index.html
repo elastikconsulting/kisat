@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kisakalenteri — Kimmo Akkanen</title>
+<meta name="description" content="Oman tuloskehityksen seuranta. Kisat, ennätykset ja tulokset 2013→.">
+<meta property="og:title" content="Kisakalenteri">
+<meta property="og:description" content="Oman tuloskehityksen seuranta.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F5F1;--paper-2:#FFFFFF;--ink:#17191D;--muted:#6B7075;
+    --line:#E4E2DA;--pb:#E8590C;--lane:#0B6E6A;
+    --sea:#DCEAF2;--land:#C8D9B8;--land-line:#A9BF96;
+    --shadow:0 1px 2px rgba(23,25,29,.04),0 8px 24px rgba(23,25,29,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{background:var(--paper);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.5;font-feature-settings:"tnum" 1;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--lane);display:inline-flex;align-items:center;gap:8px}
+  .eyebrow::before{content:"";width:22px;height:2px;background:var(--lane)}
+  header{padding:64px 0 40px;border-bottom:2px solid var(--ink)}
+  .masthead{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+  h1{font-size:clamp(44px,9vw,92px);font-weight:800;letter-spacing:-.03em;line-height:.92;text-transform:uppercase}
+  .tagline{color:var(--muted);font-size:16px;margin-top:12px}
+  .owner{font-family:'Space Mono',monospace;font-size:13px;color:var(--muted);text-align:right;line-height:1.7}
+  .owner strong{color:var(--ink);display:block;font-size:15px}
+  .next{margin:40px 0;background:var(--ink);color:var(--paper);border-radius:14px;padding:32px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;box-shadow:var(--shadow)}
+  .next .eyebrow{color:#F1B48A}.next .eyebrow::before{background:#F1B48A}
+  .next-event{font-size:clamp(24px,4vw,34px);font-weight:700;letter-spacing:-.01em;margin-top:14px}
+  .next-meta{font-family:'Space Mono',monospace;font-size:14px;color:#B8BABE;margin-top:8px}
+  .countdown{text-align:right;line-height:1}
+  .cd-num{font-family:'Space Mono',monospace;font-weight:700;font-size:clamp(48px,10vw,80px);color:var(--pb)}
+  .cd-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#B8BABE;margin-top:6px}
+  .section-nav{margin:24px 0 8px;display:flex;gap:8px;flex-wrap:wrap}
+  .section-nav a{display:inline-flex;align-items:center;min-height:34px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.45);color:var(--muted);font-size:13px;font-weight:600;text-decoration:none}
+  .section-nav a:hover,.section-nav a:focus{border-color:var(--lane);color:var(--lane);background:var(--paper-2)}
+  section{padding:56px 0;border-bottom:1px solid var(--line);scroll-margin-top:18px}
+  .sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:28px;flex-wrap:wrap;gap:8px}
+  .sec-head h2{font-size:26px;font-weight:700;letter-spacing:-.01em}
+  .sec-note{font-family:'Space Mono',monospace;font-size:13px;color:var(--muted)}
+  .record-groups{display:flex;flex-direction:column;gap:24px}
+  .record-group h3{font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .records{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .rec{background:var(--paper-2);padding:22px;display:flex;flex-direction:column;gap:10px}
+  .rec .dist{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .rec .time{font-family:'Space Mono',monospace;font-weight:700;font-size:32px;letter-spacing:-.02em;color:var(--pb);line-height:1}
+  .rec .where{font-size:13px;color:var(--ink)}.rec .where span{color:var(--muted)}
+  .rec.distance .time{color:var(--lane)}
+  .rec.distance .dist{color:var(--lane)}
+  .panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .cell{background:var(--paper-2);padding:20px}
+  .cell .n{font-family:'Space Mono',monospace;font-weight:700;font-size:32px;letter-spacing:-.02em}
+  .cell .l{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
+  .cell.derived .n{color:var(--lane)}
+  .geo-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px);gap:28px;align-items:center}
+  /* kehitys (sparklines) */
+  .trends{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .trend{background:var(--paper-2);padding:18px 18px 14px}
+  .trend .tname{font-weight:600;font-size:15px}
+  .trend .tsub{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px}
+  .trend svg{width:100%;height:auto;display:block;margin:10px 0 6px}
+  .trend .spark-line{fill:none;stroke:var(--muted);stroke-width:1.5}
+  .trend .spark-dot{fill:var(--ink)}
+  .trend .spark-dot.pb{fill:var(--pb)}
+  .trend .tmeta{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+  .trend .tmeta b{color:var(--pb);font-weight:700}
+  .trend .tyr{font-family:'Space Mono',monospace;font-size:10px;fill:var(--muted)}
+  .trend .spark-ag{fill:none;stroke:var(--lane);stroke-width:1;stroke-dasharray:3 2;opacity:.85}
+  .trend .spark-dot.ag{fill:var(--lane)}
+  .trend .tmeta i{color:var(--lane);font-style:normal;font-weight:700}
+  .trend-legend{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px}
+  .trend-legend .lg-pb{color:var(--pb)}.trend-legend .lg-ag{color:var(--lane)}
+  .globe-wrap{position:relative;display:flex;justify-content:center;min-width:0}
+  #globe{position:relative;width:100%;max-width:460px;cursor:grab}
+  #globe:active{cursor:grabbing}
+  .globe-sea{fill:var(--sea);stroke:var(--line);stroke-width:1}
+  .globe-grat{fill:none;stroke:rgba(11,110,106,.14);stroke-width:.5}
+  .globe-land{fill:var(--land);stroke:var(--land-line);stroke-width:.6}
+  .globe-mark{fill:var(--pb);stroke:#fff;stroke-width:1.25;cursor:pointer}
+  .globe-mark:hover,.globe-mark:focus{fill:var(--ink)}
+  .globe-tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-size:12px;padding:6px 9px;border-radius:6px;font-family:'Space Mono',monospace;white-space:nowrap;opacity:0;transition:opacity .12s;z-index:5}
+  .geo-top{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+  .geo-top h3{font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .geo-top ol{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .geo-top li{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline;font-size:14px}
+  .geo-top .count{font-family:'Space Mono',monospace;color:var(--pb);font-weight:700}
+  .cal{list-style:none;display:flex;flex-direction:column;gap:2px}
+  .cal li{display:grid;grid-template-columns:120px 1fr auto;gap:16px;align-items:center;padding:16px 4px;border-bottom:1px solid var(--line)}
+  .cal li:last-child{border-bottom:none}
+  .cal .date{font-family:'Space Mono',monospace;font-size:14px;color:var(--pb)}
+  .cal .name{font-weight:600}.cal .tag{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+  .log-section{padding:0;border-bottom:none}
+  .log-section details{border-bottom:1px solid var(--line);padding:0 0 24px}
+  .log-section summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:28px 0 22px}
+  .log-section summary::-webkit-details-marker{display:none}
+  .log-section summary::before{content:"+";font-family:'Space Mono',monospace;color:var(--pb);font-weight:700;margin-right:2px}
+  .log-section details[open] summary::before{content:"−"}
+  .log-section summary h2{font-size:26px;font-weight:700;letter-spacing:-.01em;display:inline}
+  .log-section summary .sec-note{margin-left:auto}
+  .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+  table{width:100%;border-collapse:collapse;font-size:15px}
+  .table-wrap table{min-width:640px}
+  th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 12px 12px;border-bottom:1px solid var(--ink)}
+  th.num,td.num{text-align:right;font-family:'Space Mono',monospace}
+  td{padding:12px;border-bottom:1px solid var(--line);vertical-align:baseline}
+  tr:hover td{background:rgba(11,110,106,.04)}
+  td.time{font-family:'Space Mono',monospace;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+  tr.pb td.time{color:var(--pb)}tr.pb td.event .ev::after{content:" ★";color:var(--pb)}
+  td.event a{color:var(--lane);text-decoration:none;border-bottom:1px solid transparent}
+  td.event a:hover,td.event a:focus{border-bottom-color:var(--lane)}
+  td.event .note{color:var(--muted);font-size:13px}
+  td.event .loc{display:block;color:var(--muted);font-size:12px;margin-top:3px}
+  .yr{font-family:'Space Mono',monospace;color:var(--muted);white-space:nowrap}
+  .elev{font-family:'Space Mono',monospace;color:var(--muted);font-size:13px}
+  footer{padding:48px 0 72px;color:var(--muted);font-size:13px}
+  footer .fnote{font-family:'Space Mono',monospace;margin-top:8px}
+  /* Konepellin alla */
+  .tech-body{max-width:72ch}
+  .tech-body p{margin:0 0 16px;font-size:15px;line-height:1.65}
+  .tech-body p strong{color:var(--ink)}
+  .tech-body a{color:var(--lane);text-decoration:none;border-bottom:1px solid rgba(11,110,106,.35)}
+  .tech-body a:hover,.tech-body a:focus{border-bottom-color:var(--lane)}
+  .tech-body code{font-family:'Space Mono',monospace;font-size:13px;background:var(--paper-2);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+  .arch{margin:28px auto;max-width:620px}
+  .arch svg{width:100%;height:auto;display:block}
+  .arch .at{font-family:'Archivo',sans-serif;font-weight:600;font-size:14px;fill:var(--ink)}
+  .arch .as{font-family:'Space Mono',monospace;font-size:11px;fill:var(--muted)}
+  .arch .abox{fill:var(--paper-2);stroke:var(--line)}
+  .arch .aline{stroke:var(--muted);stroke-width:1;fill:none}
+  .arch-cap{text-align:center;font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);margin-top:10px}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--pb);outline-offset:2px;border-radius:2px}
+  @media(max-width:760px){
+    .geo-grid{grid-template-columns:1fr}.geo-top{max-width:460px;width:100%;justify-self:center}
+  }
+  @media(max-width:600px){
+    .wrap{padding:0 18px}
+    header{padding-top:48px}
+    .owner{text-align:left}
+    .next{grid-template-columns:1fr;padding:24px}.countdown{text-align:left}
+    .cal li{grid-template-columns:1fr;gap:4px}.cal .tag{justify-self:start}
+    .section-nav{gap:6px}
+    .section-nav a{white-space:nowrap}
+    /* tulostaulut kortteina: pvm + aika ylärivillä, kisa alla */
+    .log-section .table-wrap{overflow-x:visible}
+    .log-section .table-wrap table{min-width:0}
+    .log-section thead{display:none}
+    .log-section table,.log-section tbody{display:block;width:100%}
+    .log-section tr{display:flex;flex-wrap:wrap;align-items:baseline;padding:14px 2px;border-bottom:1px solid var(--line)}
+    .log-section td{display:block;border-bottom:none;padding:0}
+    .log-section td.yr{order:1;font-size:13px}
+    .log-section td.time{order:2;margin-left:auto;font-size:16px}
+    .log-section td.event{order:3;flex-basis:100%;margin-top:6px;max-width:none}
+    .log-section td.elev{order:4;flex-basis:100%;text-align:left;margin-top:3px;font-size:12px}
+    .log-section tr:hover td{background:none}
+    section{padding:44px 0}
+    .log-section summary{padding:24px 0 18px}
+    .log-section summary h2{font-size:22px}
+  }
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.globe-tip{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="masthead">
+      <div>
+        <span class="eyebrow">Oman tuloskehityksen seuranta</span>
+        <h1>Kisa&shy;kalenteri</h1>
+        <p class="tagline">Vuosien juoksudata — kisat, ennätykset ja tulokset yhdellä sivulla.</p>
+      </div>
+      <div class="owner"><strong>Kimmo Akkanen</strong>Klaukkala · <span id="age"></span> · kisoja vuodesta 2013</div>
+    </div>
+  </header>
+
+  <div class="next" id="next-card" hidden>
+    <div>
+      <span class="eyebrow">Seuraava kisa</span>
+      <div class="next-event" id="next-event">—</div>
+      <div class="next-meta" id="next-meta">—</div>
+    </div>
+    <div class="countdown"><div class="cd-num" id="cd-num">—</div><div class="cd-label" id="cd-label">päivää</div></div>
+  </div>
+
+  <nav class="section-nav" aria-label="Sivun osiot">
+    <a href="#records-sec">Ennätykset</a>
+    <a href="#trends-sec">Kehitys</a>
+    <a href="#panel-sec">Matkakertymä</a>
+    <a href="#geo-sec">Kisapaikat</a>
+    <a href="#cal-sec">Tulevat</a>
+    <a href="#logs">Tulokset</a>
+    <a href="#tech">Konepellin alla</a>
+  </nav>
+
+  <section id="records-sec"><div class="sec-head"><h2>Ennätykset</h2><span class="sec-note">personal bests</span></div>
+    <div class="record-groups">
+      <div class="record-group"><h3>Nopeimmat ajat</h3><div class="records" id="records-time"></div></div>
+      <div class="record-group"><h3>Pisimmät suoritukset</h3><div class="records" id="records-distance"></div></div>
+    </div>
+  </section>
+
+  <section id="trends-sec" hidden><div class="sec-head"><h2>Kehitys</h2><span class="sec-note" id="trends-note"></span></div>
+    <div class="trends" id="trends-grid"></div>
+    <div class="trend-legend"><span class="lg-pb">●</span> PB · <span class="lg-ag">- - -</span> ikävakioitu aika (likimääräiset WMA-kertoimet, ikä kisapäivänä)</div></section>
+
+  <section id="panel-sec"><div class="sec-head"><h2>Matkakertymä</h2><span class="sec-note">kisoja &amp; kilometrejä</span></div>
+    <div class="panel" id="panel"></div></section>
+
+  <section id="geo-sec" hidden><div class="sec-head"><h2>Kisapaikat maailmalla</h2><span class="sec-note" id="geo-note"></span></div>
+    <div class="geo-grid">
+      <div class="globe-wrap"><div id="globe"></div></div>
+      <aside class="geo-top" aria-labelledby="geo-top-title"><h3 id="geo-top-title">Eniten kisoja maittain</h3><ol id="geo-top"></ol></aside>
+    </div>
+  </section>
+
+  <section id="cal-sec" hidden><div class="sec-head"><h2>Tulevat kisat</h2><span class="sec-note" id="cal-count"></span></div>
+    <ul class="cal" id="cal"></ul></section>
+
+  <div id="logs"></div>
+
+  <section class="log-section" id="tech"><details>
+    <summary><h2>Konepellin alla</h2><span class="sec-note">arkkitehtuuri &amp; putki</span></summary>
+    <div class="tech-body">
+      <p>Tämä sivu on täysin staattinen HTML-tiedosto, joka generoidaan öisin tietokannasta — käsin ylläpidettävää sisältöä ei ole.</p>
+
+      <p><strong>Datakerros.</strong> Sivun data elää <a href="https://neon.tech" target="_blank" rel="noopener">Neon</a> Postgres -kannassa, joka on osa laajempaa henkilökohtaista datajärjestelmääni: samaan kantaan synkataan öisin koko Strava-historiani (<code>activities</code>-taulu) sekä Garminin hyvinvointidataa, ja sinne on viety myös labramittauksia — kehonkoostumustulokset (InBody) ja juoksumaton kuntotestit vuodesta 2016 alkaen. Tämä sivu käyttää kannasta kahta taulua: <code>races</code> (kategoria, virallinen chip-aika sekunneiksi johdettuna, koordinaatit, Strava-id) ja <code>activities</code>, josta kisariveille liitetään tarkat päivämäärät ja nousumetrit <code>strava_id</code>-liitoksella. Viralliset ajat ovat aina järjestäjän chip-aikoja, eivät GPS-kellon dataa.</p>
+
+      <p><strong>Kirjaus.</strong> Uudet tulokset, tulevat kisat ja labramittaukset kirjataan kantaan Clauden ja <a href="https://neon.tech/docs/ai/neon-mcp-server" target="_blank" rel="noopener">Neon MCP</a> -integraation kautta — luonnollisella kielellä, ilman SQL-käsityötä. Kun kisa on juostu, sanon tuloksen, ja INSERT tapahtuu oikeaan tauluun oikeilla johdannaisilla.</p>
+
+      <p><strong>Build.</strong> <a href="https://github.com/features/actions" target="_blank" rel="noopener">GitHub Actions</a> -workflow (cron 03:30 UTC + manuaalinen dispatch) ajaa Python-generaattorin, joka hakee rivit psycopg 3:lla, laskee ennätykset, PB-merkinnät ★, matkakertymät, paikkakoosteen ja kehityssarjat — sama kisa vähintään kolmesti juostuna muodostaa trendin, ja maantiematkoille lasketaan lisäksi ikävakioidut ajat (likimääräiset WMA-kertoimet, ikä kisapäivänä) — ja injektoi tuloksen JSON:ina HTML-templaattiin. Yksi ajo, yksi tiedosto.</p>
+
+      <p><strong>Julkaisu.</strong> Valmis <code>index.html</code> työnnetään julkisen repon <code>gh-pages</code>-haaraan, jota <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a> tarjoilee tässä osoitteessa (custom domain A-tietueilla, TLS Let's Encryptillä). Palvelinta tai tietokantayhteyttä ei sivulla ole — pelkkä nopea staattinen tiedosto.</p>
+
+      <p><strong>Varmuuskopiot.</strong> Kanta dumpataan öisin (<code>pg_dump</code>, versiotunnistus palvelimelta) validoituna privaattiin repoon rotaatiolla: 7 päivittäistä, kuukausittainen ja vuosittainen. Kerran kuussa erillinen workflow palauttaa tuoreimman dumpin puhtaaseen Postgres-konttiin ja verifioi rivimäärät sekä sisällön — varmuuskopio jota ei koskaan palauteta on toivomus, ei vakuutus.</p>
+
+      <p><strong>Frontend.</strong> Yksi HTML-tiedosto ilman frameworkkia. Maapallo on <a href="https://d3js.org" target="_blank" rel="noopener">D3.js</a>:n ortografinen projektio (world-atlas TopoJSON), joka pyörii animaatioloopissa ja tukee drag-rotaatiota sekä rulla-/nipistyszoomia. Kehityskäyrät ovat puhdasta käsin generoitua SVG:tä ilman kirjastoriippuvuuksia — absoluuttinen aika yhtenäisenä viivana, ikävakioitu katkoviivana samassa kuvaajassa. Laskuri seuraavaan kisaan ja ikä lasketaan selaimessa, joten ne pysyvät ajan tasalla buildien välilläkin.</p>
+
+      <div class="arch" role="img" aria-label="Arkkitehtuurikaavio: Strava, Garmin ja Claude + Neon MCP -kirjaukset syöttävät Neon Postgres -kantaa, josta GitHub Actions generoi öisin staattisen sivun GitHub Pagesille osoitteeseen kisat.kimmoakkanen.fi.">
+      <svg viewBox="0 0 620 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs><marker id="a-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+        <rect class="abox" x="10" y="10" width="180" height="52" rx="8"/>
+        <text class="at" x="100" y="31" text-anchor="middle">Strava API</text>
+        <text class="as" x="100" y="49" text-anchor="middle">aktiviteetit · yösynkka</text>
+
+        <rect class="abox" x="220" y="10" width="180" height="52" rx="8"/>
+        <text class="at" x="310" y="31" text-anchor="middle">Garmin</text>
+        <text class="as" x="310" y="49" text-anchor="middle">hyvinvointidata</text>
+
+        <rect x="430" y="10" width="180" height="52" rx="8" fill="#FBEDE3" stroke="var(--pb)" stroke-width="1"/>
+        <text class="at" x="520" y="31" text-anchor="middle">Tulosten kirjaus</text>
+        <text class="as" x="520" y="49" text-anchor="middle" style="fill:var(--pb)">Claude + Neon MCP</text>
+
+        <line class="aline" x1="100" y1="62" x2="255" y2="128" marker-end="url(#a-arr)"/>
+        <line class="aline" x1="310" y1="62" x2="310" y2="128" marker-end="url(#a-arr)"/>
+        <line class="aline" x1="520" y1="62" x2="365" y2="128" marker-end="url(#a-arr)"/>
+
+        <rect x="180" y="130" width="260" height="52" rx="8" fill="#E4F0ED" stroke="var(--lane)" stroke-width="1"/>
+        <text class="at" x="310" y="151" text-anchor="middle" style="fill:var(--lane)">Neon Postgres</text>
+        <text class="as" x="310" y="169" text-anchor="middle" style="fill:var(--lane)">races · activities · labrataulut</text>
+
+        <line class="aline" x1="310" y1="182" x2="310" y2="240" marker-end="url(#a-arr)"/>
+        <text class="as" x="325" y="216">cron 03:30 UTC</text>
+
+        <rect x="170" y="242" width="280" height="52" rx="8" fill="#EBECF1" stroke="#B9BCC9"/>
+        <text class="at" x="310" y="263" text-anchor="middle">GitHub Actions</text>
+        <text class="as" x="310" y="281" text-anchor="middle">Python-generaattori → index.html</text>
+
+        <line class="aline" x1="310" y1="294" x2="310" y2="352" marker-end="url(#a-arr)"/>
+        <text class="as" x="325" y="328">push gh-pages</text>
+
+        <rect x="190" y="354" width="240" height="52" rx="8" fill="#EBECF1" stroke="#B9BCC9"/>
+        <text class="at" x="310" y="375" text-anchor="middle">GitHub Pages</text>
+        <text class="as" x="310" y="393" text-anchor="middle">staattinen jakelu + TLS</text>
+
+        <line class="aline" x1="310" y1="406" x2="310" y2="448" marker-end="url(#a-arr)"/>
+
+        <rect x="160" y="450" width="300" height="48" rx="10" fill="var(--ink)"/>
+        <text class="at" x="310" y="478" text-anchor="middle" style="fill:var(--paper)">kisat.kimmoakkanen.fi</text>
+      </svg>
+      <div class="arch-cap">datan matka kannasta selaimeen — kerran yössä</div>
+      </div>
+
+      <p>Koodi on rakennettu tekoälyavusteisesti (<a href="https://claude.ai" target="_blank" rel="noopener">Claude</a> &amp; <a href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a>) — arkkitehtuurista SQL:ään ja D3-koodiin.</p>
+
+      <p>Kun kisa on juostu, tulos kirjataan kantaan — aamulla sivu on ajan tasalla.</p>
+    </div>
+  </details></section>
+
+  <footer>
+    Kisat ovat pääosin virallisia chip-aikoja. Harjoitussuoritukset, Cooper-testit, nousumetrit ja tarkat päivämäärät perustuvat erikseen merkittyihin lähteisiin ja Strava-tallenteisiin.<br>
+    <span class="fnote">Kisakalenteri · päivitetty <span id="upd"></span></span>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+const DATA = {"generated_at": "2026-09-12", "records": [{"dist": "5 km", "time": "20:00", "kind": "time", "event": "Viikin Viitonen #25", "year": 2015}, {"dist": "10 km", "time": "41:11", "kind": "time", "event": "Midnight Run Helsinki", "year": 2016}, {"dist": "½-maraton", "time": "1:33:52", "kind": "time", "event": "Helsinki Half Marathon", "year": 2016}, {"dist": "Maraton", "time": "3:23:28", "kind": "time", "event": "Valencia Marathon", "year": 2016}, {"dist": "Cooper", "time": "3122 m", "kind": "time", "event": "Eläintarhan kenttä", "year": 2015}, {"dist": "Pisin juoksu", "time": "64,37 km", "kind": "distance", "event": "Connemarathon", "year": 2018}, {"dist": "Pisin pyöräily", "time": "140 km", "kind": "distance", "event": "Tour de Helsinki", "year": 2013}, {"dist": "Pisin hiihto", "time": "32 km", "kind": "distance", "event": "Finlandia-hiihto", "year": 2014}], "upcoming": [{"date": "2026-09-12", "event": "Midnight Run Helsinki", "tag": "10 km · sileä"}], "logs": [{"cat": "marathon", "heading": "Maratonit", "extra_header": null, "items": [{"date": "29.9.2024", "event": "Berlin Marathon", "loc": "Berliini, Saksa", "url": "https://www.strava.com/activities/12539617096", "time": "5:25:33", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "23.4.2023", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/8944203465", "time": "5:03:20", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "24.4.2022", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/7034532101", "time": "5:20:20", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "9.10.2021", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": "https://www.strava.com/activities/6086825589", "time": "4:43:48", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "3.10.2020", "event": "Helsinki City Marathon", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/4146193990", "time": "4:24:06", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "12.10.2019", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": "https://www.strava.com/activities/2782510143", "time": "4:05:15", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "25.11.2018", "event": "San Sebastian Marathon", "loc": "San Sebastián, Espanja", "url": null, "time": "3:41:35", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "16.9.2018", "event": "Berlin Marathon", "loc": "Berliini, Saksa", "url": "https://www.strava.com/activities/1845723942", "time": "3:46:21", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "25.8.2018", "event": "Helsinki Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "4:13:01", "cooper_m": null, "extra": "", "notes": "4:15 jänis", "pb": false}, {"date": "7.4.2018", "event": "Helsinki (oma treenilenkki)", "loc": "Helsinki, Suomi", "url": null, "time": "5:23:25", "cooper_m": null, "extra": "", "notes": "harjoitusmaraton", "pb": false}, {"date": "29.10.2017", "event": "Ljubljana Marathon", "loc": "Ljubljana, Slovenia", "url": null, "time": "3:45:08", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "12.8.2017", "event": "Helsinki City Marathon", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/1131426134", "time": "3:54:10", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "20.11.2016", "event": "Valencia Marathon", "loc": "Valencia, Espanja", "url": "https://www.strava.com/activities/781775885", "time": "3:23:28", "cooper_m": null, "extra": "", "notes": "Maraton PB", "pb": true}, {"date": "13.8.2016", "event": "Pyhä Tunturimaraton", "loc": "Pyhätunturi, Suomi", "url": null, "time": "5:11:29", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "10.4.2016", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/542738321", "time": "3:51:37", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "10.10.2015", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": "https://www.strava.com/activities/411382778", "time": "3:29:01", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "15.8.2015", "event": "Helsinki City Marathon", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/370268858", "time": "3:33:51", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "12.10.2014", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": "https://www.strava.com/activities/206568221", "time": "3:35:16", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "16.8.2014", "event": "Helsinki City Marathon", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/181184597", "time": "3:57:49", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "13.10.2013", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": null, "time": "4:07:03", "cooper_m": null, "extra": "", "notes": "1. maraton", "pb": false}]}, {"cat": "half", "heading": "Puolimaratonit", "extra_header": null, "items": [{"date": "17.5.2025", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/14508788615", "time": "2:30:51", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "11.5.2024", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/11385299295", "time": "1:59:29", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "13.5.2023", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/9063847851", "time": "2:05:07", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "14.5.2022", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/7140925578", "time": "2:04:28", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "2.10.2021", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/6051294104", "time": "1:53:18", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "10.10.2020", "event": "Vantaan Maraton", "loc": "Vantaa, Suomi", "url": "https://www.strava.com/activities/4176035752", "time": "2:13:58", "cooper_m": null, "extra": "", "notes": "2:15 jänis", "pb": false}, {"date": "26.9.2020", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "2:26:48", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "8.6.2019", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "1:59:58", "cooper_m": null, "extra": "", "notes": "2:00 jänis", "pb": false}, {"date": "18.5.2019", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/2378376129", "time": "1:41:28", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "14.4.2019", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/2294333892", "time": "2:29:40", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "10.6.2017", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "2:09:53", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "13.5.2017", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/992824897", "time": "2:13:01", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "23.4.2017", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/956701356", "time": "2:15:01", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "11.6.2016", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "1:33:52", "cooper_m": null, "extra": "", "notes": "½-maraton PB", "pb": true}, {"date": "14.5.2016", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/576128728", "time": "1:40:57", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "5.5.2016", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/566148520", "time": "2:22:10", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "6.6.2015", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "1:41:11", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "16.5.2015", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/305766349", "time": "1:42:05", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "7.6.2014", "event": "Helsinki Half Marathon", "loc": "Helsinki, Suomi", "url": null, "time": "1:45:56", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "24.5.2014", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/145114300", "time": "1:44:28", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "4.5.2013", "event": "Helsinki City Run", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/9074801200", "time": "1:58:29", "cooper_m": null, "extra": "", "notes": null, "pb": false}]}, {"cat": "ultra", "heading": "Ultrajuoksut", "extra_header": "Nousu", "items": [{"date": "13.3.2016", "event": "Klaukkala (oma treenilenkki)", "loc": "Klaukkala, Suomi", "url": null, "time": "4:44:12", "cooper_m": null, "extra": "", "notes": "harjoitusultra", "pb": false}, {"date": "26.12.2016", "event": "Klaukkala (oma treenilenkki)", "loc": "Klaukkala, Suomi", "url": null, "time": "5:42:30", "cooper_m": null, "extra": "", "notes": "harjoitusultra", "pb": false}, {"date": "22.4.2018", "event": "Connemarathon", "loc": "Connemara, Irlanti", "url": "https://www.strava.com/activities/1525641212", "time": "6:52:01", "cooper_m": null, "extra": "503 m", "notes": "Ultra PB (40 mi)", "pb": false}, {"date": "14.7.2018", "event": "NUTS Pallas-Hetta", "loc": "Pallas–Hetta, Suomi", "url": "https://www.strava.com/activities/1703325115", "time": "8:04:57", "cooper_m": null, "extra": "1640 m", "notes": "Polku-ultra PB", "pb": false}]}, {"cat": "10k", "heading": "10 km", "extra_header": null, "items": [{"date": "13.9.2025", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/15801288258", "time": "1:21:40", "cooper_m": null, "extra": "", "notes": "Meean ja Sofin kanssa", "pb": false}, {"date": "14.9.2024", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/12410688799", "time": "1:10:01", "cooper_m": null, "extra": "", "notes": "Meean kanssa", "pb": false}, {"date": "1.9.2018", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/1812655472", "time": "59:54", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "3.9.2016", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/699536855", "time": "41:11", "cooper_m": null, "extra": "", "notes": "10 km PB", "pb": true}, {"date": "29.8.2015", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/380823490", "time": "41:46", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "30.8.2014", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": "https://www.strava.com/activities/187564979", "time": "43:06", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "2014", "event": "Helsinki Halloween Run", "loc": "Helsinki, Suomi", "url": null, "time": "43:00", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "2013", "event": "Midnight Run Helsinki", "loc": "Helsinki, Suomi", "url": null, "time": "50:20", "cooper_m": null, "extra": "", "notes": null, "pb": false}]}, {"cat": "5k", "heading": "5 km", "extra_header": null, "items": [{"date": "7.11.2015", "event": "Viikin Viitonen", "loc": "Helsinki, Suomi", "url": null, "time": "20:03", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "5.9.2015", "event": "Viikin Viitonen #25", "loc": "Helsinki, Suomi", "url": null, "time": "20:00", "cooper_m": null, "extra": "", "notes": "5 km PB", "pb": true}, {"date": "1.7.2015", "event": "Viikin Viitonen", "loc": "Helsinki, Suomi", "url": null, "time": "21:07", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "8.11.2014", "event": "Viikin Viitonen", "loc": "Helsinki, Suomi", "url": null, "time": "21:10", "cooper_m": null, "extra": "", "notes": null, "pb": false}, {"date": "3.5.2014", "event": "Viikin Viitonen", "loc": "Helsinki, Suomi", "url": null, "time": "22:16", "cooper_m": null, "extra": "", "notes": null, "pb": false}]}, {"cat": "trail", "heading": "Polkukisat", "extra_header": "Nousu", "items": [{"date": "9.5.2025", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/14424978151", "time": "1:14:28", "cooper_m": null, "extra": "251 m", "notes": "Team Polkukiitäjät 3:53:15", "pb": false}, {"date": "4.5.2024", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/11327814854", "time": "1:42:36", "cooper_m": null, "extra": "262 m", "notes": null, "pb": false}, {"date": "3.5.2024", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/11322101876", "time": "1:10:33", "cooper_m": null, "extra": "231 m", "notes": "Team Polkukiitäjät 4:32:53", "pb": false}, {"date": "5.5.2023", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/9014797466", "time": "1:13:32", "cooper_m": null, "extra": "245 m", "notes": "Team Polkukiitäjät 3:45:04", "pb": false}, {"date": "6.5.2022", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/7096982284", "time": "1:05:08", "cooper_m": null, "extra": "241 m", "notes": "Team Polkukiitäjät 4:11:48", "pb": false}, {"date": "11.6.2021", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/5451586416", "time": "1:02:59", "cooper_m": null, "extra": "243 m", "notes": "Team Polkukiitäjät 4:14:46", "pb": false}, {"date": "14.5.2015", "event": "Bodom Trail", "loc": "Espoo, Suomi", "url": "https://www.strava.com/activities/304258070", "time": "1:17:02", "cooper_m": null, "extra": "291 m", "notes": null, "pb": false}]}, {"cat": "ski", "heading": "Hiihdot", "extra_header": "Matka", "items": [{"date": "2014", "event": "Finlandia-hiihto", "loc": "Lahti, Suomi", "url": null, "time": "2:49:07", "cooper_m": null, "extra": "32 km", "notes": "vapaa", "pb": false}, {"date": "2013", "event": "Finlandia-hiihto", "loc": "Lahti, Suomi", "url": null, "time": "2:04:44", "cooper_m": null, "extra": "20 km", "notes": "vapaa", "pb": false}]}, {"cat": "cycling", "heading": "Pyöräily", "extra_header": "Matka", "items": [{"date": "2013", "event": "Tour de Helsinki", "loc": "Helsinki, Suomi", "url": null, "time": "5:03:26", "cooper_m": null, "extra": "140 km · maantie", "notes": null, "pb": false}]}, {"cat": "cooper", "heading": "Cooperin testit", "extra_header": null, "items": [{"date": "24.9.2014", "event": "Eläintarhan kenttä", "loc": "Helsinki, Suomi", "url": null, "time": null, "cooper_m": 3120, "extra": "", "notes": "Runner's High Maratonklubi", "pb": false}, {"date": "28.1.2015", "event": "Liikuntamylly", "loc": "Helsinki, Suomi", "url": null, "time": null, "cooper_m": 3020, "extra": "", "notes": "Runner's High Maratonklubi", "pb": false}, {"date": "15.7.2015", "event": "Eläintarhan kenttä", "loc": "Helsinki, Suomi", "url": null, "time": null, "cooper_m": 3055, "extra": "", "notes": "Runner's High Maratonklubi", "pb": false}, {"date": "21.10.2015", "event": "Eläintarhan kenttä", "loc": "Helsinki, Suomi", "url": null, "time": null, "cooper_m": 3122, "extra": "", "notes": "Cooper PB", "pb": true}, {"date": "3.6.2020", "event": "Leppävaaran stadion", "loc": "Espoo, Suomi", "url": null, "time": null, "cooper_m": 2990, "extra": "", "notes": "SolveIT FirmaCooper", "pb": false}, {"date": "20.12.2021", "event": "Olympiastadion (sisärata)", "loc": "Helsinki, Suomi", "url": null, "time": null, "cooper_m": 2760, "extra": "", "notes": "Runner's High Cooper-kurssi", "pb": false}]}], "panel": {"half_races": 21, "marathon_races": 19, "ultra_races": 2, "ge_half": 45, "ge_marathon": 24, "ge_ultra": 4, "km_running": 1543, "km_all": 1735}, "trends": [{"name": "Helsinki City Run", "sub": "½-maraton · 21,1 km", "unit": "time", "points": [{"d": "2013-05-04", "y": 2013, "v": 7109, "t": "1:58:29", "av": 7109, "at": "1:58:29", "pb": false}, {"d": "2014-05-24", "y": 2014, "v": 6268, "t": "1:44:28", "av": 6268, "at": "1:44:28", "pb": false}, {"d": "2015-05-16", "y": 2015, "v": 6125, "t": "1:42:05", "av": 6094, "at": "1:41:34", "pb": false}, {"d": "2016-05-14", "y": 2016, "v": 6057, "t": "1:40:57", "av": 5990, "at": "1:39:50", "pb": true}, {"d": "2017-05-13", "y": 2017, "v": 7981, "t": "2:13:01", "av": 7845, "at": "2:10:45", "pb": false}, {"d": "2019-05-18", "y": 2019, "v": 6088, "t": "1:41:28", "av": 5911, "at": "1:38:31", "pb": false}, {"d": "2021-10-02", "y": 2021, "v": 6798, "t": "1:53:18", "av": 6512, "at": "1:48:32", "pb": false}, {"d": "2022-05-14", "y": 2022, "v": 7468, "t": "2:04:28", "av": 7102, "at": "1:58:22", "pb": false}, {"d": "2023-05-13", "y": 2023, "v": 7507, "t": "2:05:07", "av": 7087, "at": "1:58:07", "pb": false}, {"d": "2024-05-11", "y": 2024, "v": 7169, "t": "1:59:29", "av": 6717, "at": "1:51:57", "pb": false}, {"d": "2025-05-17", "y": 2025, "v": 9051, "t": "2:30:51", "av": 8417, "at": "2:20:17", "pb": false}], "best": "1:40:57", "latest": "2:30:51", "ag_best": "1:38:31"}, {"name": "Cooperin testi", "sub": "Cooper", "unit": "m", "points": [{"d": "2014-09-24", "y": 2014, "v": 3120, "t": "3120 m", "pb": false}, {"d": "2015-01-28", "y": 2015, "v": 3020, "t": "3020 m", "pb": false}, {"d": "2015-07-15", "y": 2015, "v": 3055, "t": "3055 m", "pb": false}, {"d": "2015-10-21", "y": 2015, "v": 3122, "t": "3122 m", "pb": true}, {"d": "2020-06-03", "y": 2020, "v": 2990, "t": "2990 m", "pb": false}, {"d": "2021-12-20", "y": 2021, "v": 2760, "t": "2760 m", "pb": false}], "best": "3122 m", "latest": "2760 m"}, {"name": "Midnight Run Helsinki", "sub": "10 km", "unit": "time", "points": [{"d": "2014-08-30", "y": 2014, "v": 2586, "t": "43:06", "av": 2586, "at": "43:06", "pb": false}, {"d": "2015-08-29", "y": 2015, "v": 2506, "t": "41:46", "av": 2493, "at": "41:33", "pb": false}, {"d": "2016-09-03", "y": 2016, "v": 2471, "t": "41:11", "av": 2444, "at": "40:44", "pb": true}, {"d": "2018-09-01", "y": 2018, "v": 3594, "t": "59:54", "av": 3511, "at": "58:31", "pb": false}, {"d": "2024-09-14", "y": 2024, "v": 4201, "t": "1:10:01", "av": 3936, "at": "1:05:36", "pb": false}, {"d": "2025-09-13", "y": 2025, "v": 4900, "t": "1:21:40", "av": 4557, "at": "1:15:57", "pb": false}], "best": "41:11", "latest": "1:21:40", "ag_best": "40:44"}, {"name": "Helsinki Half Marathon", "sub": "½-maraton · 21,1 km", "unit": "time", "points": [{"d": "2014-06-07", "y": 2014, "v": 6356, "t": "1:45:56", "av": 6356, "at": "1:45:56", "pb": false}, {"d": "2015-06-06", "y": 2015, "v": 6071, "t": "1:41:11", "av": 6041, "at": "1:40:41", "pb": false}, {"d": "2016-06-11", "y": 2016, "v": 5632, "t": "1:33:52", "av": 5570, "at": "1:32:50", "pb": true}, {"d": "2017-06-10", "y": 2017, "v": 7793, "t": "2:09:53", "av": 7661, "at": "2:07:41", "pb": false}, {"d": "2019-06-08", "y": 2019, "v": 7198, "t": "1:59:58", "av": 6989, "at": "1:56:29", "pb": false}, {"d": "2020-09-26", "y": 2020, "v": 8808, "t": "2:26:48", "av": 8500, "at": "2:21:40", "pb": false}], "best": "1:33:52", "latest": "2:26:48", "ag_best": "1:32:50"}, {"name": "Vantaan Maraton", "sub": "maraton · 42,195 km", "unit": "time", "points": [{"d": "2013-10-13", "y": 2013, "v": 14823, "t": "4:07:03", "av": 14823, "at": "4:07:03", "pb": false}, {"d": "2014-10-12", "y": 2014, "v": 12916, "t": "3:35:16", "av": 12916, "at": "3:35:16", "pb": false}, {"d": "2015-10-10", "y": 2015, "v": 12541, "t": "3:29:01", "av": 12478, "at": "3:27:58", "pb": true}, {"d": "2019-10-12", "y": 2019, "v": 14715, "t": "4:05:15", "av": 14288, "at": "3:58:08", "pb": false}, {"d": "2021-10-09", "y": 2021, "v": 17028, "t": "4:43:48", "av": 16313, "at": "4:31:53", "pb": false}], "best": "3:29:01", "latest": "4:43:48", "ag_best": "3:27:58"}, {"name": "Bodom Trail", "sub": "polku · 10 km", "unit": "time", "points": [{"d": "2021-06-11", "y": 2021, "v": 3779, "t": "1:02:59", "pb": true}, {"d": "2022-05-06", "y": 2022, "v": 3908, "t": "1:05:08", "pb": false}, {"d": "2023-05-05", "y": 2023, "v": 4412, "t": "1:13:32", "pb": false}, {"d": "2024-05-03", "y": 2024, "v": 4233, "t": "1:10:33", "pb": false}, {"d": "2025-05-09", "y": 2025, "v": 4468, "t": "1:14:28", "pb": false}], "best": "1:02:59", "latest": "1:14:28"}, {"name": "Viikin Viitonen", "sub": "5 km", "unit": "time", "points": [{"d": "2014-05-03", "y": 2014, "v": 1336, "t": "22:16", "av": 1336, "at": "22:16", "pb": false}, {"d": "2014-11-08", "y": 2014, "v": 1270, "t": "21:10", "av": 1270, "at": "21:10", "pb": false}, {"d": "2015-07-01", "y": 2015, "v": 1267, "t": "21:07", "av": 1261, "at": "21:01", "pb": false}, {"d": "2015-09-05", "y": 2015, "v": 1200, "t": "20:00", "av": 1194, "at": "19:54", "pb": true}, {"d": "2015-11-07", "y": 2015, "v": 1203, "t": "20:03", "av": 1197, "at": "19:57", "pb": false}], "best": "20:00", "latest": "20:03", "ag_best": "19:54"}, {"name": "Helsinki City Marathon", "sub": "maraton · 42,195 km", "unit": "time", "points": [{"d": "2014-08-16", "y": 2014, "v": 14269, "t": "3:57:49", "av": 14269, "at": "3:57:49", "pb": false}, {"d": "2015-08-15", "y": 2015, "v": 12831, "t": "3:33:51", "av": 12767, "at": "3:32:47", "pb": true}, {"d": "2017-08-12", "y": 2017, "v": 14050, "t": "3:54:10", "av": 13811, "at": "3:50:11", "pb": false}, {"d": "2020-10-03", "y": 2020, "v": 15846, "t": "4:24:06", "av": 15291, "at": "4:14:51", "pb": false}], "best": "3:33:51", "latest": "4:24:06", "ag_best": "3:32:47"}, {"name": "Connemarathon", "sub": "maraton · 42,195 km", "unit": "time", "points": [{"d": "2016-04-10", "y": 2016, "v": 13897, "t": "3:51:37", "av": 13744, "at": "3:49:04", "pb": true}, {"d": "2022-04-24", "y": 2022, "v": 19220, "t": "5:20:20", "av": 18278, "at": "5:04:38", "pb": false}, {"d": "2023-04-23", "y": 2023, "v": 18200, "t": "5:03:20", "av": 17181, "at": "4:46:21", "pb": false}], "best": "3:51:37", "latest": "5:03:20", "ag_best": "3:49:04"}], "geo": [{"name": "Helsinki, Suomi", "lat": 60.17, "lon": 24.941, "count": 42}, {"name": "Espoo, Suomi", "lat": 60.206, "lon": 24.656, "count": 9}, {"name": "Vantaa, Suomi", "lat": 60.294, "lon": 25.04, "count": 6}, {"name": "Connemara, Irlanti", "lat": 53.49, "lon": -9.98, "count": 6}, {"name": "Lahti, Suomi", "lat": 60.983, "lon": 25.656, "count": 2}, {"name": "Klaukkala, Suomi", "lat": 60.463, "lon": 24.769, "count": 2}, {"name": "Berliini, Saksa", "lat": 52.52, "lon": 13.405, "count": 2}, {"name": "Pyhätunturi, Suomi", "lat": 67.01, "lon": 27.23, "count": 1}, {"name": "Valencia, Espanja", "lat": 39.47, "lon": -0.376, "count": 1}, {"name": "Ljubljana, Slovenia", "lat": 46.056, "lon": 14.506, "count": 1}, {"name": "San Sebastián, Espanja", "lat": 43.318, "lon": -1.981, "count": 1}, {"name": "Pallas–Hetta, Suomi", "lat": 68.05, "lon": 24.07, "count": 1}], "geo_countries": [{"name": "Suomi", "count": 63}, {"name": "Irlanti", "count": 6}, {"name": "Saksa", "count": 2}, {"name": "Espanja", "count": 2}, {"name": "Slovenia", "count": 1}], "geo_summary": {"cities": 12, "countries": 5}};
+const $ = s => document.querySelector(s);
+const esc = s => (s==null?"":String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])));
+
+function recordCard(r){
+  return `<div class="rec ${r.kind==='distance'?'distance':''}"><div class="dist">${esc(r.dist)}</div>
+  <div class="time">${esc(r.time)}</div>
+  <div class="where">${esc(r.event)} <span>· ${esc(r.year)}</span></div></div>`;
+}
+
+const timeRecords = DATA.records.filter(r => r.kind !== 'distance');
+const distanceRecords = DATA.records.filter(r => r.kind === 'distance');
+$("#records-time").innerHTML = timeRecords.map(recordCard).join("");
+$("#records-distance").innerHTML = distanceRecords.map(recordCard).join("");
+if (!distanceRecords.length) $("#records-distance").closest(".record-group").hidden = true;
+
+const p = DATA.panel;
+const cells = [
+  {n:p.half_races, l:"Puolimaratonkisoja"},
+  {n:p.marathon_races, l:"Maratonkisoja"},
+  {n:p.ultra_races, l:"Ultrakisoja"},
+  {n:p.ge_half, l:"Vähintään ½-maratonin mittaisia suorituksia", d:1},
+  {n:p.ge_marathon, l:"Vähintään maratonin mittaisia suorituksia", d:1},
+  {n:p.ge_ultra, l:"Ultramittaisia suorituksia (treenit ml.)", d:1},
+  {n:p.km_running+" km", l:"Kisattua matkaa · juoksu", d:1},
+  {n:p.km_all+" km", l:"Kisattua matkaa · kaikki lajit", d:1},
+];
+$("#panel").innerHTML = cells.map(c=>`
+  <div class="cell${c.d?' derived':''}"><div class="n">${esc(c.n)}</div><div class="l">${esc(c.l)}</div></div>`).join("");
+
+// Kehitys: sparkline per monivuotinen kisa (aika alaspäin parempi, Cooper ylöspäin)
+(function(){
+  const trends = DATA.trends || [];
+  if (!trends.length) return;
+  $("#trends-sec").hidden = false;
+  $("#trends-note").textContent = trends.length + " kisaa, joissa 3+ tulosta";
+
+  const W=260, H=84, P=10;
+  function spark(t){
+    const pts = t.points;
+    const ds = pts.map(p => new Date(p.d).getTime());
+    const vs = pts.map(p => p.v).concat(pts.filter(p=>p.av!=null).map(p=>p.av));
+    const d0 = Math.min(...ds), d1 = Math.max(...ds);
+    const v0 = Math.min(...vs), v1 = Math.max(...vs);
+    const X = d => d1===d0 ? W/2 : P + (d-d0)/(d1-d0)*(W-2*P);
+    // aika: pienempi arvo (nopeampi) ylös; metrit: suurempi arvo ylös
+    const Y = v => {
+      if (v1===v0) return H/2;
+      const f = t.unit==="m" ? (v1-v)/(v1-v0) : (v-v0)/(v1-v0);
+      return P + f*(H-2*P);
+    };
+    const line = pts.map((p,i)=>(i?"L":"M")+X(new Date(p.d).getTime()).toFixed(1)+" "+Y(p.v).toFixed(1)).join("");
+    const dots = pts.map(p=>`<circle class="spark-dot${p.pb?' pb':''}" cx="${X(new Date(p.d).getTime()).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="3.2"><title>${esc(p.y)}: ${esc(p.t)}</title></circle>`).join("");
+    const agp = pts.filter(p=>p.av!=null);
+    const agLine = agp.length>1 ? `<path class="spark-ag" d="${agp.map((p,i)=>(i?"L":"M")+X(new Date(p.d).getTime()).toFixed(1)+" "+Y(p.av).toFixed(1)).join("")}"/>` : "";
+    const agDots = agp.map(p=>`<circle class="spark-dot ag" cx="${X(new Date(p.d).getTime()).toFixed(1)}" cy="${Y(p.av).toFixed(1)}" r="2.2"><title>${esc(p.y)}: ${esc(p.at)} (ikävakioitu)</title></circle>`).join("");
+    const y0 = pts[0].y, y1 = pts[pts.length-1].y;
+    const yrs = `<text class="tyr" x="${P}" y="${H-1}">${y0}</text><text class="tyr" x="${W-P}" y="${H-1}" text-anchor="end">${y1}</text>`;
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${agLine}<path class="spark-line" d="${line}"/>${agDots}${dots}${yrs}</svg>`;
+  }
+
+  $("#trends-grid").innerHTML = trends.map(t=>`
+    <div class="trend">
+      <div class="tname">${esc(t.name)}</div>
+      <div class="tsub">${esc(t.sub)} · ${t.points.length} tulosta</div>
+      ${spark(t)}
+      <div class="tmeta">paras <b>${esc(t.best)}</b> · viimeisin ${esc(t.latest)}${t.ag_best?` · ikävak. paras <i>${esc(t.ag_best)}</i>`:""}</div>
+    </div>`).join("");
+})();
+
+const today = new Date(); today.setHours(0,0,0,0);
+if (DATA.upcoming.length){
+  $("#cal-sec").hidden=false;
+  $("#cal-count").textContent = DATA.upcoming.length+" tapahtumaa";
+  const next = DATA.upcoming[0];
+  const nd = new Date(next.date+"T00:00:00");
+  const days = Math.ceil((nd-today)/86400000);
+  $("#next-card").hidden=false;
+  $("#next-event").textContent = next.event;
+  $("#next-meta").textContent = nd.toLocaleDateString("fi-FI")+" · "+next.tag;
+  $("#cd-num").textContent = days;
+  $("#cd-label").textContent = days===1?"päivä":"päivää";
+  $("#cal").innerHTML = DATA.upcoming.map(u=>{
+    const d=new Date(u.date+"T00:00:00");
+    return `<li><span class="date">${d.toLocaleDateString("fi-FI")}</span>
+      <span class="name">${esc(u.event)}</span><span class="tag">${esc(u.tag)}</span></li>`;
+  }).join("");
+}
+
+function eventCell(it){
+  const inner = it.url ? `<a href="${esc(it.url)}" target="_blank" rel="noopener"><span class="ev">${esc(it.event)}</span></a>`
+                       : `<span class="ev">${esc(it.event)}</span>`;
+  const note = it.notes ? ` <span class="note">— ${esc(it.notes)}</span>` : "";
+  const loc = it.loc ? `<span class="loc">${esc(it.loc)}</span>` : "";
+  return inner+note+loc;
+}
+function isInitiallyOpen(cat){
+  return ["marathon", "half"].includes(cat);
+}
+$("#logs").innerHTML = DATA.logs.map(g=>{
+  const isCooper = g.cat==="cooper";
+  let head, body;
+  if (isCooper){
+    head = `<th>Pvm</th><th>Paikka</th><th class="num">Matka</th>`;
+    body = g.items.map(it=>`<tr class="${it.pb?'pb':''}">
+      <td class="yr">${esc(it.date)}</td><td class="event">${eventCell(it)}</td>
+      <td class="num time">${esc(it.cooper_m)} m</td></tr>`).join("");
+  } else {
+    const ex = g.extra_header;
+    head = `<th>${g.items[0]&&/^\d+\.\d+/.test(g.items[0].date)?'Pvm':'Vuosi'}</th><th>Kisa</th>${ex?`<th class="num">${esc(ex)}</th>`:''}<th class="num">Aika</th>`;
+    body = g.items.map(it=>`<tr class="${it.pb?'pb':''}">
+      <td class="yr">${esc(it.date)}</td><td class="event">${eventCell(it)}</td>
+      ${ex?`<td class="num elev">${esc(it.extra||'')}</td>`:''}
+      <td class="num time">${esc(it.time || '—')}</td></tr>`).join("");
+  }
+  return `<section class="log-section" id="log-${esc(g.cat)}"><details ${isInitiallyOpen(g.cat)?'open':''}>
+    <summary><h2>${esc(g.heading)}</h2><span class="sec-note">${g.items.length} kpl</span></summary>
+    <div class="table-wrap"><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+  </details></section>`;
+}).join("");
+
+$("#upd").textContent = new Date(DATA.generated_at+"T00:00:00").toLocaleDateString("fi-FI");
+
+(function(){
+  const holder = document.getElementById("globe");
+  const geo = DATA.geo || [];
+  const geoCountries = DATA.geo_countries || [];
+  const sum = DATA.geo_summary || {cities:0, countries:0};
+  if (!holder || !geo.length) return;
+  $("#geo-sec").hidden = false;
+  $("#geo-note").textContent = sum.cities + " kisapaikkaa · " + sum.countries + " maata";
+  $("#geo-top").innerHTML = geoCountries.slice(0, 6).map(d =>
+    `<li><span>${esc(d.name)}</span><span class="count">${d.count}</span></li>`
+  ).join("");
+  if (!window.d3) return;
+
+  const W = Math.min(holder.clientWidth || 460, 460), H = W;
+  const svg = d3.select(holder).append("svg")
+      .attr("viewBox", "0 0 " + W + " " + H).attr("width", "100%").style("display","block")
+      .attr("role", "img").attr("aria-label", "Karttapallo, jossa näkyvät kisapaikat");
+  const BASE = W/2 - 6;
+  let zoom = 1;
+  const projection = d3.geoOrthographic()
+      .scale(BASE).translate([W/2, H/2]).rotate([-15, -52]);
+  const path = d3.geoPath(projection);
+  const sea = svg.append("path").datum({type:"Sphere"}).attr("class","globe-sea");
+  const grat = svg.append("path").datum(d3.geoGraticule10()).attr("class","globe-grat");
+  const land = svg.append("path").attr("class","globe-land");
+  const marks = svg.append("g");
+  const tip = d3.select(holder).append("div").attr("class","globe-tip");
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let rotating = !reduceMotion;
+
+  function redraw(){
+    projection.scale(BASE * zoom);
+    sea.attr("d", path); grat.attr("d", path); land.attr("d", path);
+    const center = [-projection.rotate()[0], -projection.rotate()[1]];
+    dots.attr("r", d => (3 + Math.min(4, Math.sqrt(d.count))) * Math.min(1.6, Math.sqrt(zoom)))
+      .each(function(d){
+        const visible = d3.geoDistance([d.lon, d.lat], center) < Math.PI/2;
+        const p = projection([d.lon, d.lat]);
+        d3.select(this).attr("cx", p[0]).attr("cy", p[1])
+          .style("display", visible ? null : "none");
+      });
+  }
+
+  function showTip(e,d){
+    rotating=false;
+    tip.style("opacity",1).html(esc(d.name) + " · " + d.count + (d.count===1?" kisa":" kisaa"));
+    moveTip(e);
+  }
+  function hideTip(){ tip.style("opacity",0); if (!reduceMotion) rotating=true; }
+
+  const dots = marks.selectAll("circle").data(geo).join("circle")
+      .attr("class","globe-mark")
+      .attr("tabindex",0)
+      .attr("role","img")
+      .attr("aria-label", d => `${d.name}, ${d.count} ${d.count===1?'kisa':'kisaa'}`)
+      .on("mouseenter", showTip)
+      .on("mousemove", moveTip)
+      .on("mouseleave", hideTip)
+      .on("focus", function(e,d){ showTip(e,d); })
+      .on("blur", hideTip);
+  function moveTip(e){
+    const b = holder.getBoundingClientRect();
+    const x = (e.clientX || b.left + b.width/2) - b.left;
+    const y = (e.clientY || b.top + b.height/2) - b.top;
+    tip.style("left", (x + 12) + "px").style("top", (y + 12) + "px");
+  }
+
+  d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json")
+    .then(world => { land.datum(topojson.feature(world, world.objects.land)); redraw(); })
+    .catch(() => redraw());
+
+  if (!reduceMotion){
+    d3.timer(() => { if (rotating){ const r = projection.rotate(); projection.rotate([r[0]+0.16/zoom, r[1]]); redraw(); } });
+  }
+
+  svg.call(d3.drag()
+    .on("start", () => rotating=false)
+    .on("drag", (e) => { const r = projection.rotate(); const k = 0.35/zoom;
+      projection.rotate([r[0]+e.dx*k, r[1]-e.dy*k]); redraw(); })
+    .on("end", () => { if (!reduceMotion) setTimeout(() => rotating=true, 3000); }));
+
+  svg.call(d3.zoom()
+    .scaleExtent([1, 8])
+    .filter(e => e.type === "wheel" || (e.touches && e.touches.length > 1))
+    .on("zoom", (e) => { zoom = e.transform.k; redraw(); }))
+    .on("dblclick.zoom", null);
+
+  redraw();
+})();
+
+(function(){
+  const bd = new Date(1979, 10, 22); // kk 10 = marraskuu
+  const now = new Date();
+  let age = now.getFullYear() - bd.getFullYear();
+  const m = now.getMonth() - bd.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < bd.getDate())) age--;
+  const el = document.getElementById("age");
+  if (el) el.textContent = age + " v";
+})();
+</script>
+</body>
+</html>
